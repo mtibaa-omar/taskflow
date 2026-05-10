@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskflow-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taskflow-backend
+  template:
+    metadata:
+      labels:
+        app: taskflow-backend
+    spec:
+      containers:
+        - name: taskflow-backend
+          image: mtibaaomar/taskflow-backend:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://postgres:123456@postgres:5432/taskflow_db"
+          command:
+            [
+              "sh",
+              "-c",
+              "npx prisma generate && npx prisma migrate deploy && npm run dev",
+            ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskflow-backend-service
+spec:
+  selector:
+    app: taskflow-backend
+  ports:
+    - port: 5000
+      targetPort: 5000
+  type: NodePort
