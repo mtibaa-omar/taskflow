@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskflow-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taskflow-frontend
+  template:
+    metadata:
+      labels:
+        app: taskflow-frontend
+    spec:
+      containers:
+        - name: taskflow-frontend
+          image: mtibaaomar/taskflow-frontend:latest
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskflow-frontend-service
+spec:
+  selector:
+    app: taskflow-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: NodePort
