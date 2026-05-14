@@ -1,10 +1,20 @@
 import express, { NextFunction, Request, Response } from "express";
+import helmet from "helmet";
+import cors from "cors";
 import userRoutes from "./routes/user.routes";
 import projectRoutes from "./routes/project.routes";
 import taskRoutes from "./routes/task.routes";
 
 const app = express();
 
+app.use(helmet());
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 app.use(express.json());
 
 app.get("/", (req: Request, res: Response) => {

@@ -66,20 +66,34 @@ function TaskRow({ task }: { task: Task }) {
 }
 
 export default function Dashboard() {
-  const { data: projects = [] } = useQuery({
+  const {
+    data: projects = [],
+    isLoading: loadingProjects,
+    isError: errorProjects,
+  } = useQuery({
     queryKey: ["projects"],
     queryFn: getProjects,
   });
 
-  const { data: tasks = [] } = useQuery({
+  const {
+    data: tasks = [],
+    isLoading: loadingTasks,
+    isError: errorTasks,
+  } = useQuery({
     queryKey: ["tasks"],
     queryFn: () => getTasks(),
   });
 
-  const { data: users = [] } = useQuery({
+  const {
+    data: users = [],
+    isLoading: loadingUsers,
+  } = useQuery({
     queryKey: ["users"],
     queryFn: getUsers,
   });
+
+  const isLoading = loadingProjects || loadingTasks || loadingUsers;
+  const isError = errorProjects || errorTasks;
 
   const todo = tasks.filter((t) => t.status === "TODO").length;
   const inProgress = tasks.filter((t) => t.status === "IN_PROGRESS").length;
@@ -87,13 +101,25 @@ export default function Dashboard() {
   const completionRate =
     tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0;
 
-  const recentTasks = [...tasks]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 6);
+  // API already returns tasks sorted by createdAt desc
+  const recentTasks = tasks.slice(0, 6);
+  const recentProjects = projects.slice(0, 4);
 
-  const recentProjects = [...projects]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 4);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-sm text-red-500">Failed to load dashboard data. Please try again.</p>
+      </div>
+    );
+  }
 
   return (
     <div>
